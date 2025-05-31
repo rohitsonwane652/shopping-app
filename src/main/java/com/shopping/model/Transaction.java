@@ -7,6 +7,7 @@ import java.time.LocalDate;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Transaction {
 
     private Long customerId;
