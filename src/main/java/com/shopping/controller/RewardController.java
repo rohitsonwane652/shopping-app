@@ -1,16 +1,15 @@
 package com.shopping.controller;
 
+import com.shopping.utils.LogMessage;
 import com.shopping.model.RewardResponse;
-import com.shopping.model.Transaction;
 import com.shopping.service.RewardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/rewards")
@@ -19,14 +18,17 @@ public class RewardController {
     @Autowired
     private RewardService rewardService;
 
-    @PostMapping("/calculateReward")
-    public ResponseEntity<List<RewardResponse>> getRewards(@RequestBody List<Transaction> transactions) {
-        try {
-            List<RewardResponse> rewards = rewardService.calculateRewards(transactions);
-//            throw new Exception("Getting Error");
-            return ResponseEntity.ok(rewards);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+
+    @GetMapping("/user/{customerId}")
+    public ResponseEntity<RewardResponse> getRewardForUser(@PathVariable Long customerId){
+        LogMessage.infoLog("Request to calculate Reward For customerId:" + customerId);
+        try{
+            RewardResponse reward = rewardService.calculateRewardForUser(customerId);
+            LogMessage.infoLog("Successfully calculated reward for customerId :" + reward);
+            return ResponseEntity.ok(reward);
+        } catch (Exception e){
+            LogMessage.errorLog("Error occured for calculating reward for customerId: " + customerId);
+            throw e;
         }
     }
 }

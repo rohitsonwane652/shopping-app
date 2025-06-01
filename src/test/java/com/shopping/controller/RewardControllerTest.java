@@ -1,0 +1,54 @@
+package com.shopping.controller;
+
+import com.shopping.model.RewardResponse;
+import com.shopping.service.RewardService;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.Map;
+
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@WebMvcTest(RewardController.class)
+class RewardControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockBean
+    private RewardService rewardService;
+
+    @Test
+    void getRewardForUserTest() throws Exception {
+        Long customerId = 1L;
+        RewardResponse mockResponse =
+                RewardResponse.builder().customerId(1L)
+                        .monthlyPoints(Map.of("APRIL 2025",90,"MAY 2025",90)).totalPoints(180).build();
+
+
+        when(rewardService.calculateRewardForUser(customerId)).thenReturn(mockResponse);
+
+        mockMvc.perform(get("/rewards/user/{customerId}", customerId)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalPoints").value(180));
+    }
+
+    @Test
+    void getRewardForUserInternalServerError() throws Exception {
+        Long customerId = 1L;
+
+        when(rewardService.calculateRewardForUser(customerId))
+                .thenThrow(new RuntimeException("Service failure"));
+
+        mockMvc.perform(get("/user/{customerId}", customerId))
+                .andExpect(status().isInternalServerError());
+    }
+}
