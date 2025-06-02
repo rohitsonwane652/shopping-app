@@ -18,7 +18,11 @@ public class RewardController {
     @Autowired
     private RewardService rewardService;
 
-
+    /**
+     * api to get last 3 month transaction reward based on customerId
+     * @param customerId
+     * @return
+     */
     @GetMapping("/user/{customerId}")
     public ResponseEntity<RewardResponse> getRewardForUser(@PathVariable Long customerId){
         LogMessage.infoLog("Request to calculate Reward For customerId:" + customerId);
@@ -28,6 +32,23 @@ public class RewardController {
             return ResponseEntity.ok(reward);
         } catch (Exception e){
             LogMessage.errorLog("Error occured for calculating reward for customerId: " + customerId);
+            throw e;
+        }
+    }
+
+    /**
+     * api to get all customers reward points
+     * @return
+     */
+    @GetMapping("/get-reward-statement")
+    public ResponseEntity<List<RewardResponse>> getRewardStatement(){
+        LogMessage.infoLog("Request to get all customers reward for year ");
+        try{
+            List<RewardResponse> reward = rewardService.calculateRewardForAllCustomers();
+            LogMessage.infoLog("Successfully generated statement for all customer reward");
+            return ResponseEntity.ok(reward);
+        } catch (Exception e){
+            LogMessage.errorLog("Error occured for calculating reward ");
             throw e;
         }
     }
