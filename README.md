@@ -3,6 +3,12 @@
 A Spring Boot application to calculate and retrieve reward points for customers based on their last 3 months purchase transactions.
 ---
 
+## Reward Calculation Logic
+- Customers receive **2 points** for every dollar spent **over $100** in each transaction.
+- Customers receive **1 point** for every dollar spent **between $50 and $100** in each transaction.
+- No points are awarded for spending below $50.
+
+
 ## 📁 Project Structure
 ```text
 src/
@@ -56,3 +62,29 @@ Returns the reward points accumulated by a customer over the **last 3 months** b
     },
     "totalPoints": 161
 }
+
+
+
+## Technologies Used
+- Java 17
+- Spring Boot
+- Spring Data JPA
+- Hibernate
+- Maven
+- PostgreSQL
+- JUnit / Mockito
+
+## Setup Instructions
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/your-username/reward-points-app.git
+   cd reward
+2. **Build the project:**
+    ```bash
+    mvn clean install
+3.**Run the application**
+    ```bash
+    mvn spring-boot:run
+
+
