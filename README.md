@@ -62,7 +62,7 @@ Returns the reward points accumulated by a customer over the **last 3 months** b
     },
     "totalPoints": 161
 }
-
+```
 
 
 ## Technologies Used
