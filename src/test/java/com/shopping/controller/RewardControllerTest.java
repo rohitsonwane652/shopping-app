@@ -9,6 +9,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import static org.mockito.Mockito.when;
@@ -25,6 +27,9 @@ class RewardControllerTest {
     @MockBean
     private RewardService rewardService;
 
+    /**
+     * Test for validating correct response
+     */
     @Test
     void getRewardForUserTest() throws Exception {
         Long customerId = 1L;
@@ -38,9 +43,12 @@ class RewardControllerTest {
         mockMvc.perform(get("/rewards/user/{customerId}", customerId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.totalPoints").value(180));
+                .andExpect(jsonPath("$.data.totalPoints").value(180));
     }
 
+    /**
+     * Test for validating exception
+     */
     @Test
     void getRewardForUserInternalServerError() throws Exception {
         Long customerId = 1L;
@@ -50,5 +58,26 @@ class RewardControllerTest {
 
         mockMvc.perform(get("/user/{customerId}", customerId))
                 .andExpect(status().isInternalServerError());
+    }
+
+    /**
+     * Test for validating getting reward statement of all customers
+     */
+    @Test
+    void getRewardStatementTest() throws Exception {
+        Long customerId = 1L;
+        List<RewardResponse> mockResponse = Arrays.asList(
+                RewardResponse.builder().customerId(1L)
+                        .monthlyPoints(Map.of("APRIL 2025",90,"MAY 2025",90)).totalPoints(180).build(),
+                RewardResponse.builder().customerId(2L)
+                        .monthlyPoints(Map.of("APRIL 2025",90,"MAY 2025",90)).totalPoints(180).build()
+        );
+
+        when(rewardService.calculateRewardForAllCustomers()).thenReturn(mockResponse);
+
+        mockMvc.perform(get("/rewards/get-reward-statement")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.length()").value(2));
     }
 }
