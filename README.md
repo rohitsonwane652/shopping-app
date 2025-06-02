@@ -78,9 +78,7 @@ Returns the reward points accumulated by a customer over the **last 3 months** b
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/rohitsonwane652/shopping-app.git
-   cd shopping-app
-   ```
+   git clone https://github.com/rohitsonwane652/shopping-app.git
 2. **Build the project:**
     ```bash
     mvn clean install
