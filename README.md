@@ -78,12 +78,13 @@ Returns the reward points accumulated by a customer over the **last 3 months** b
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/your-username/reward-points-app.git
-   cd reward
+   git clone https://github.com/rohitsonwane652/shopping-app.git
+   cd shopping-app
+   ```
 2. **Build the project:**
     ```bash
     mvn clean install
-3.**Run the application**
+3. **Run the application:**
     ```bash
     mvn spring-boot:run
 
