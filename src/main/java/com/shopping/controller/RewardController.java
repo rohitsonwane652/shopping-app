@@ -1,5 +1,6 @@
 package com.shopping.controller;
 
+import com.shopping.model.Response;
 import com.shopping.utils.LogMessage;
 import com.shopping.model.RewardResponse;
 import com.shopping.service.RewardService;
@@ -10,7 +11,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 
+/**
+ * Controller contains apis for getting reward points
+ */
 @RestController
 @RequestMapping("/rewards")
 public class RewardController {
@@ -24,16 +29,23 @@ public class RewardController {
      * @return
      */
     @GetMapping("/user/{customerId}")
-    public ResponseEntity<RewardResponse> getRewardForUser(@PathVariable Long customerId){
-        LogMessage.infoLog("Request to calculate Reward For customerId:" + customerId);
+    public ResponseEntity<Response<RewardResponse>> getRewardForUser(@PathVariable Long customerId) throws Exception{
+        Response<RewardResponse> response = new Response<>();
+
         try{
+            String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+            LogMessage.startLog(this.getClass().getName(), methodName);
             RewardResponse reward = rewardService.calculateRewardForUser(customerId);
-            LogMessage.infoLog("Successfully calculated reward for customerId :" + reward);
-            return ResponseEntity.ok(reward);
+            LogMessage.infoLog("Successfully calculated reward for customerId :" + customerId);
+            response.setData(reward);
+            response.setMessage("Successfully fetched reward points for customerId:" + customerId);
+            response.setTotalRecords(1L);
+            LogMessage.endLog(this.getClass().getName(), methodName);
         } catch (Exception e){
-            LogMessage.errorLog("Error occured for calculating reward for customerId: " + customerId);
+            LogMessage.logStackTrace(e.getClass().getName(), e);
             throw e;
         }
+        return ResponseEntity.ok(response);
     }
 
     /**
@@ -41,15 +53,23 @@ public class RewardController {
      * @return
      */
     @GetMapping("/get-reward-statement")
-    public ResponseEntity<List<RewardResponse>> getRewardStatement(){
-        LogMessage.infoLog("Request to get all customers reward for year ");
+    public ResponseEntity<Response<List<RewardResponse>>> getRewardStatement(){
+        Response<List<RewardResponse>> response = new Response<>();
         try{
+            String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+            LogMessage.startLog(this.getClass().getName(), methodName);
             List<RewardResponse> reward = rewardService.calculateRewardForAllCustomers();
             LogMessage.infoLog("Successfully generated statement for all customer reward");
-            return ResponseEntity.ok(reward);
+
+            response.setData(reward);
+            response.setMessage("Successfully fetched reward points for all customers");
+            response.setTotalRecords((long)reward.size());
+            LogMessage.endLog(this.getClass().getName(), methodName);
         } catch (Exception e){
-            LogMessage.errorLog("Error occured for calculating reward ");
+            LogMessage.logStackTrace(e.getClass().getName(), e);
             throw e;
         }
+        return ResponseEntity.ok(response);
     }
+
 }
