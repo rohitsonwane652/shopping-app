@@ -22,4 +22,11 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     @Query("SELECT t FROM Transaction t WHERE t.customerId = :customerId AND t.date >= :startDate")
     List<Transaction> findLast3MonthsTransaction(Long customerId, LocalDate startDate);
 
+    /**
+     * Custom JPQL query to fetch all transactions after the specified start date.
+     * @param startDate - startDate the date from which to start fetching transactions
+     * @return list of Transaction
+     */
+    @Query("SELECT t FROM Transaction t WHERE t.date >= :startDate")
+    List<Transaction> findLast3MonthsTransactionForAllUsers( LocalDate startDate);
 }
