@@ -82,6 +82,7 @@ E.g. /rewards/user/{501}
 ```
 
 `2.GET /rewards/get-reward-statement`
+
 **Description:**  
 Returns the reward points for all customers based on transaction amount.
 
