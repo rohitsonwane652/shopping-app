@@ -1,6 +1,8 @@
 package com.shopping.service;
 
+import com.shopping.exception.InvalidDataException;
 import com.shopping.exception.NotFoundException;
+import com.shopping.exception.TransactionNotFoundException;
 import com.shopping.model.RewardResponse;
 import com.shopping.model.Transaction;
 import com.shopping.repository.TransactionRepository;
@@ -8,10 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This service contains method to calculate reward for users
+ */
 @Service
 public class RewardServiceImpl implements RewardService {
 
@@ -20,13 +26,13 @@ public class RewardServiceImpl implements RewardService {
 
     /**
      * Calculates Reward Point based on Last 3 month transaction amount
-     * @param customerId - fetcging transaction based on customerId
+     * @param customerId - fetching transaction based on customerId
      * @return
      */
     @Override
-    public RewardResponse calculateRewardForUser(Long customerId) {
+    public RewardResponse calculateRewardForUser(Long customerId) throws Exception {
         if(customerId==null || customerId<=0){
-            throw new IllegalArgumentException("Customer Id must be positive");
+            throw new InvalidDataException("Customer Id must be positive");
         }
         LocalDate localDate = LocalDate.now();
         LocalDate startDate = localDate.minusMonths(3);
@@ -35,12 +41,12 @@ public class RewardServiceImpl implements RewardService {
         List<Transaction> transactions = transactionRepository.findLast3MonthsTransaction(customerId,startDate);
 
         if(transactions.isEmpty()){
-            throw new NotFoundException("No transactions found for customer ID: " + customerId);
+            throw new TransactionNotFoundException("No transactions found for customer ID: " + customerId);
         }
 
         Map<String, Integer> customerMonthlyPoints = new HashMap<>();
 
-        //Calculating Monthly points
+        //Calculating Monthly points and totalpoints
         for (Transaction transaction : transactions) {
             String month = transaction.getDate().getMonth().toString() + " " + transaction.getDate().getYear();
             int points = calculatePoints(transaction.getAmount());
@@ -56,6 +62,56 @@ public class RewardServiceImpl implements RewardService {
 
 
         return response;
+    }
+
+    /**
+     * Calculate Reward for all customers
+     * @return List of RewardResponse
+     */
+    @Override
+    public List<RewardResponse> calculateRewardForAllCustomers() {
+        //Fetch All Customer transactions
+        List<Transaction> transactions = transactionRepository.findAll();
+
+
+        if (transactions.isEmpty()) {
+            throw new TransactionNotFoundException("No transactions found for reward calculation.");
+        }
+
+
+        Map<Long, Map<String, Integer>> customerMonthlyPoints = new HashMap<>();
+
+        for (Transaction transaction : transactions) {
+            Long customerId = transaction.getCustomerId();
+            String month = transaction.getDate().getMonth().toString() + " " + transaction.getDate().getYear();
+            int points = calculatePoints(transaction.getAmount());
+
+            //Checking if customerId is present, otherwise adding to customerMonthlyPoints
+            customerMonthlyPoints
+                    .computeIfAbsent(customerId, k -> new HashMap<>());
+
+            Map<String, Integer> monthlyPoints = customerMonthlyPoints.get(customerId);
+
+            int prevPoints = monthlyPoints.getOrDefault(month, 0);
+            monthlyPoints.put(month, prevPoints + points);
+        }
+
+        //Creating List of response object
+        List<RewardResponse> responses = new ArrayList<>();
+        for (var entry : customerMonthlyPoints.entrySet()) {
+            Long customerId = entry.getKey();
+            Map<String, Integer> monthly = entry.getValue();
+            int total = monthly.values().stream().mapToInt(Integer::intValue).sum();
+
+            RewardResponse response = new RewardResponse();
+            response.setCustomerId(customerId);
+            response.setMonthlyPoints(monthly);
+            response.setTotalPoints(total);
+            responses.add(response);
+        }
+
+        return responses;
+
     }
 
     /**
