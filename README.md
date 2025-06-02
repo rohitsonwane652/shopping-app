@@ -4,6 +4,7 @@ A Spring Boot application to calculate and retrieve reward points for customers 
 ---
 
 ## 📁 Project Structure
+```text
 src/
 ├── main/
 │ ├── java/
@@ -25,7 +26,10 @@ src/
 │ └── resources/
 │ └── application.properties # Spring configuration
 └── test/ # Unit and integration tests
-
+|
+|
+|
+```
 
 ---
 
