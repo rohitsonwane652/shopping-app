@@ -92,7 +92,7 @@ public class RewardServiceTest {
                 Transaction.builder().orderId(1004L).itemId(1L).customerId(124L).amount(120).date(LocalDate.of(2025,04,25)).build()
         );
 
-        when(transactionRepoMock.findAll()).thenReturn(transactions);
+        when(transactionRepoMock.findLast3MonthsTransactionForAllUsers(any(LocalDate.class))).thenReturn(transactions);
 
         List<RewardResponse> result = Arrays.asList(
                 RewardResponse.builder().customerId(123L)
@@ -112,7 +112,7 @@ public class RewardServiceTest {
      */
     @Test
     public void testCalculateRewardForAllCustomers_NoTransactions() {
-        when(transactionRepoMock.findAll()).thenReturn(Collections.emptyList());
+        when(transactionRepoMock.findLast3MonthsTransactionForAllUsers(any())).thenReturn(Collections.emptyList());
 
         assertThrows(TransactionNotFoundException.class, () -> {
             rewardServiceMock.calculateRewardForAllCustomers();
