@@ -77,13 +77,15 @@ Returns the reward points accumulated by a customer over the **last 3 months** b
 ## Setup Instructions
 
 1. **Clone the repository:**
-   ```bash
+   ```bash
    git clone https://github.com/rohitsonwane652/shopping-app.git
+   cd shopping-app
 2. **Build the project:**
-    ```bash
-    mvn clean install
-3. **Run the application:**
-    ```bash
+   ```bash
+   mvn clean install
+3. **Run the aplication:**
+   ```bash
     mvn spring-boot:run
+
 
 
