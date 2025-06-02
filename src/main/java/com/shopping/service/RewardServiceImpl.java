@@ -70,8 +70,10 @@ public class RewardServiceImpl implements RewardService {
      */
     @Override
     public List<RewardResponse> calculateRewardForAllCustomers() {
+        LocalDate localDate = LocalDate.now();
+        LocalDate startDate = localDate.minusMonths(3);
         //Fetch All Customer transactions
-        List<Transaction> transactions = transactionRepository.findAll();
+        List<Transaction> transactions = transactionRepository.findLast3MonthsTransactionForAllUsers(startDate);
 
 
         if (transactions.isEmpty()) {
