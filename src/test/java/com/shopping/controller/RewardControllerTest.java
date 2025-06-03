@@ -40,10 +40,10 @@ class RewardControllerTest {
 
         when(rewardService.calculateRewardForUser(customerId)).thenReturn(mockResponse);
 
-        mockMvc.perform(get("/rewards/user/{customerId}", customerId)
+        mockMvc.perform(get("/rewards/get-total-reward-points/{customerId}", customerId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.totalPoints").value(180));
+                .andExpect(jsonPath("$.totalPoints").value(180));
     }
 
     /**
@@ -56,7 +56,7 @@ class RewardControllerTest {
         when(rewardService.calculateRewardForUser(customerId))
                 .thenThrow(new RuntimeException("Service failure"));
 
-        mockMvc.perform(get("/user/{customerId}", customerId))
+        mockMvc.perform(get("/rewards/get-total-reward-points/{customerId}", customerId))
                 .andExpect(status().isInternalServerError());
     }
 
@@ -75,9 +75,9 @@ class RewardControllerTest {
 
         when(rewardService.calculateRewardForAllCustomers()).thenReturn(mockResponse);
 
-        mockMvc.perform(get("/rewards/get-reward-statement")
+        mockMvc.perform(get("/rewards/get-total-reward-points")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.length()").value(2));
+                .andExpect(jsonPath("$.length()").value(2));
     }
 }

@@ -28,18 +28,14 @@ public class RewardController {
      * @param customerId
      * @return
      */
-    @GetMapping("/user/{customerId}")
-    public ResponseEntity<Response<RewardResponse>> getRewardForUser(@PathVariable Long customerId) throws Exception{
-        Response<RewardResponse> response = new Response<>();
-
+    @GetMapping("/get-total-reward-points/{customerId}")
+    public ResponseEntity<RewardResponse> getRewardForUser(@PathVariable Long customerId) throws Exception{
+        RewardResponse response;
         try{
             String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
             LogMessage.startLog(this.getClass().getName(), methodName);
-            RewardResponse reward = rewardService.calculateRewardForUser(customerId);
+            response = rewardService.calculateRewardForUser(customerId);
             LogMessage.infoLog("Successfully calculated reward for customerId :" + customerId);
-            response.setData(reward);
-            response.setMessage("Successfully fetched reward points for customerId:" + customerId);
-            response.setTotalRecords(1L);
             LogMessage.endLog(this.getClass().getName(), methodName);
         } catch (Exception e){
             LogMessage.logStackTrace(e.getClass().getName(), e);
@@ -52,18 +48,15 @@ public class RewardController {
      * api to get all customers reward points
      * @return
      */
-    @GetMapping("/get-reward-statement")
-    public ResponseEntity<Response<List<RewardResponse>>> getRewardStatement(){
-        Response<List<RewardResponse>> response = new Response<>();
+    @GetMapping("/get-total-reward-points")
+    public ResponseEntity<List<RewardResponse>> getRewardStatement(){
+        List<RewardResponse> response;
         try{
             String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
             LogMessage.startLog(this.getClass().getName(), methodName);
-            List<RewardResponse> reward = rewardService.calculateRewardForAllCustomers();
+            response = rewardService.calculateRewardForAllCustomers();
             LogMessage.infoLog("Successfully generated statement for all customer reward");
 
-            response.setData(reward);
-            response.setMessage("Successfully fetched reward points for all customers");
-            response.setTotalRecords((long)reward.size());
             LogMessage.endLog(this.getClass().getName(), methodName);
         } catch (Exception e){
             LogMessage.logStackTrace(e.getClass().getName(), e);

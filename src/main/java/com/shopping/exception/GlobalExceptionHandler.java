@@ -17,42 +17,28 @@ import java.util.Collections;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(InvalidDataException.class)
-    public ResponseEntity<Response> handeInvalidDataException(InvalidDataException e, HttpServletRequest req){
+    public ResponseEntity<String> handeInvalidDataException(InvalidDataException e, HttpServletRequest req){
         LogMessage.errorLog("Request URI-->" + req.getRequestURI() + " Exception class -->" + e.getClass() + " Exception message-->" + e.getMessage());
-        Response<?> responseDto = new Response<>();
-        responseDto.setUrl(req.getRequestURI());
-        responseDto.setMessage(e.getMessage());
-        responseDto.setErrorDesc(e.getMessage());
-        responseDto.setErrorType(HttpStatus.BAD_REQUEST.getReasonPhrase());
-        responseDto.setError(Collections.singletonList("True"));
-        responseDto.setTotalRecords(0L);
-        return new ResponseEntity<>(responseDto, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+
+    }
+
+    @ExceptionHandler(CustomerDataNotFoundException.class)
+    public ResponseEntity<String> handeTransactionNotFoundException(CustomerDataNotFoundException e, HttpServletRequest req){
+        LogMessage.errorLog("Request URI-->" + req.getRequestURI() + " Exception class -->" + e.getClass() + " Exception message-->" + e.getMessage());
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(TransactionNotFoundException.class)
-    public ResponseEntity<Response> handeTransactionNotFoundException(TransactionNotFoundException e, HttpServletRequest req){
+    public ResponseEntity<String> handeTransactionNotFoundException(TransactionNotFoundException e, HttpServletRequest req){
         LogMessage.errorLog("Request URI-->" + req.getRequestURI() + " Exception class -->" + e.getClass() + " Exception message-->" + e.getMessage());
-        Response<?> responseDto = new Response<>();
-        responseDto.setUrl(req.getRequestURI());
-        responseDto.setMessage(e.getMessage());
-        responseDto.setErrorDesc(e.getMessage());
-        responseDto.setErrorType(HttpStatus.BAD_REQUEST.getReasonPhrase());
-        responseDto.setError(Collections.singletonList("True"));
-        responseDto.setTotalRecords(0L);
-        return new ResponseEntity<>(responseDto, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Response> handleAllExceptions(Exception e,HttpServletRequest req){
+    public ResponseEntity<String> handleAllExceptions(Exception e,HttpServletRequest req){
         LogMessage.errorLog("Request URI-->" + req.getRequestURI() + " Exception class -->" + e.getClass() + " Exception message-->" + e.getMessage());
-        Response<?> responseDto = new Response<>();
-        responseDto.setUrl(req.getRequestURI());
-        responseDto.setMessage(e.getMessage());
-        responseDto.setErrorDesc(e.getMessage());
-        responseDto.setErrorType(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
-        responseDto.setError(Collections.singletonList("True"));
-        responseDto.setTotalRecords(0L);
-        return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 }
