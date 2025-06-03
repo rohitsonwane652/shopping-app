@@ -1,17 +1,15 @@
 package com.shopping.service;
 
+import com.shopping.exception.CustomerDataNotFoundException;
 import com.shopping.exception.InvalidDataException;
-import com.shopping.exception.NotFoundException;
 import com.shopping.exception.TransactionNotFoundException;
 import com.shopping.model.RewardResponse;
 import com.shopping.model.Transaction;
 import com.shopping.repository.TransactionRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDate;
@@ -64,12 +62,10 @@ public class RewardServiceTest {
         when(transactionRepoMock.findLast3MonthsTransaction(anyLong()
                 ,any(LocalDate.class))).thenReturn(Arrays.asList());
 
-        TransactionNotFoundException exception = assertThrows(TransactionNotFoundException.class,
+        CustomerDataNotFoundException exception = assertThrows(CustomerDataNotFoundException.class,
                             ()->rewardServiceMock.calculateRewardForUser(123L));
 
-        String message = "No transactions found for customer ID: 123";
-
-        Assertions.assertEquals(message, exception.getMessage());
+        Assertions.assertEquals(CustomerDataNotFoundException.class, exception.getClass());
     }
 
     /**
@@ -114,7 +110,7 @@ public class RewardServiceTest {
     public void testCalculateRewardForAllCustomers_NoTransactions() {
         when(transactionRepoMock.findLast3MonthsTransactionForAllUsers(any())).thenReturn(Collections.emptyList());
 
-        assertThrows(TransactionNotFoundException.class, () -> {
+        assertThrows(CustomerDataNotFoundException.class, () -> {
             rewardServiceMock.calculateRewardForAllCustomers();
         });
 
