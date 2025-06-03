@@ -1,11 +1,12 @@
 package com.shopping.service;
 
+import com.shopping.exception.CustomerDataNotFoundException;
 import com.shopping.exception.InvalidDataException;
-import com.shopping.exception.NotFoundException;
 import com.shopping.exception.TransactionNotFoundException;
 import com.shopping.model.RewardResponse;
 import com.shopping.model.Transaction;
 import com.shopping.repository.TransactionRepository;
+import static com.shopping.utils.Constants.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +16,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
+
 /**
  * This service contains method to calculate reward for users
  */
@@ -23,7 +26,6 @@ public class RewardServiceImpl implements RewardService {
 
     @Autowired
     TransactionRepository transactionRepository;
-
     /**
      * Calculates Reward Point based on Last 3 month transaction amount
      * @param customerId - fetching transaction based on customerId
@@ -32,7 +34,7 @@ public class RewardServiceImpl implements RewardService {
     @Override
     public RewardResponse calculateRewardForUser(Long customerId) throws Exception {
         if(customerId==null || customerId<=0){
-            throw new InvalidDataException("Customer Id must be positive");
+            throw new InvalidDataException(CUSTOMER_ID_INVALID);
         }
         LocalDate localDate = LocalDate.now();
         LocalDate startDate = localDate.minusMonths(3);
@@ -41,7 +43,7 @@ public class RewardServiceImpl implements RewardService {
         List<Transaction> transactions = transactionRepository.findLast3MonthsTransaction(customerId,startDate);
 
         if(transactions.isEmpty()){
-            throw new TransactionNotFoundException("No transactions found for customer ID: " + customerId);
+            throw new CustomerDataNotFoundException(CUSTOMER_DATA_NOT_FOUND);
         }
 
         Map<String, Integer> customerMonthlyPoints = new HashMap<>();
@@ -77,7 +79,7 @@ public class RewardServiceImpl implements RewardService {
 
 
         if (transactions.isEmpty()) {
-            throw new TransactionNotFoundException("No transactions found for reward calculation.");
+            throw new CustomerDataNotFoundException(CUSTOMER_DATA_NOT_FOUND);
         }
 
 
