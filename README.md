@@ -27,7 +27,7 @@ src/
 │ │ ├── exception/ # Custom exception handling
 │ │ │ ├── GlobalExceptionHandler.java
 | | | ├── InvalidDataException.java
-| | | ├── NotFoundException.java
+| | | ├── CustomerNotFoundException.java
 │ │ │ └── TransactionNotFoundException.java
 │ │ ├── model/ # Data models/entities
 │ │ ├── repository/ # Spring Data JPA interfaces
@@ -36,6 +36,7 @@ src/
 │ │ │ ├── RewardService.java
 │ │ │ └── RewardServiceImpl.java
 │ │ ├── utils/ # Utility classes
+│ │ │ ├── Constants.java
 │ │ │ └── LogMessage.java
 │ │ └── ShoppingAppApplication.java
 │ └── resources/
@@ -53,7 +54,7 @@ src/
 ### Get Reward Points for a Customer
 
 **Endpoint:**  
-`1.GET /rewards/user/{customerId}`
+`1.GET /rewards/get-total-reward-points/{customerId}`
 
 **Path Variable:**
 - `customerId` (Long) – Unique ID of the customer
@@ -61,10 +62,27 @@ src/
 **Description:**  
 Returns the reward points accumulated by a customer over the **last 3 months** based on transaction amount.
 
-E.g. /rewards/user/{501}
+E.g. /rewards/get-total-reward-points/501
 ```json
 {
-    "data": {
+    "customerId": 501,
+    "monthlyPoints": {
+        "APRIL 2025": 91,
+        "MAY 2025": 70
+    },
+    "totalPoints": 161
+}
+```
+
+`2.GET /rewards/get-total-reward-points`
+
+**Description:**  
+Returns the reward points for all customers based on transaction amount.
+
+E.g. /rewards/get-total-reward-points
+```json
+[
+    {
         "customerId": 501,
         "monthlyPoints": {
             "APRIL 2025": 91,
@@ -72,47 +90,14 @@ E.g. /rewards/user/{501}
         },
         "totalPoints": 161
     },
-    "message": "Successfully fetched reward points for customerId:501",
-    "error": null,
-    "errorDesc": null,
-    "url": null,
-    "totalRecords": 1,
-    "errorType": null
-}
-```
-
-`2.GET /rewards/get-reward-statement`
-
-**Description:**  
-Returns the reward points for all customers based on transaction amount.
-
-E.g. /rewards/get-reward-statement
-```json
-{
-    "data": [
-        {
-            "customerId": 501,
-            "monthlyPoints": {
-                "APRIL 2025": 91,
-                "MAY 2025": 70
-            },
-            "totalPoints": 161
+    {
+        "customerId": 502,
+        "monthlyPoints": {
+            "MARCH 2025": 311
         },
-        {
-            "customerId": 502,
-            "monthlyPoints": {
-                "MARCH 2025": 311
-            },
-            "totalPoints": 311
-        }
-    ],
-    "message": "Successfully fetched reward points for all customers",
-    "error": null,
-    "errorDesc": null,
-    "url": null,
-    "totalRecords": 2,
-    "errorType": null
-}
+        "totalPoints": 311
+    }
+]
 ```
 
 
