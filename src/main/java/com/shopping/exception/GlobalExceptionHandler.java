@@ -23,6 +23,12 @@ public class GlobalExceptionHandler {
 
     }
 
+    @ExceptionHandler(CustomerDataNotFoundException.class)
+    public ResponseEntity<String> handeTransactionNotFoundException(CustomerDataNotFoundException e, HttpServletRequest req){
+        LogMessage.errorLog("Request URI-->" + req.getRequestURI() + " Exception class -->" + e.getClass() + " Exception message-->" + e.getMessage());
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(TransactionNotFoundException.class)
     public ResponseEntity<String> handeTransactionNotFoundException(TransactionNotFoundException e, HttpServletRequest req){
         LogMessage.errorLog("Request URI-->" + req.getRequestURI() + " Exception class -->" + e.getClass() + " Exception message-->" + e.getMessage());
