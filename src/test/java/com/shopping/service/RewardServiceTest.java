@@ -2,7 +2,6 @@ package com.shopping.service;
 
 import com.shopping.exception.CustomerDataNotFoundException;
 import com.shopping.exception.InvalidDataException;
-import com.shopping.exception.TransactionNotFoundException;
 import com.shopping.model.RewardResponse;
 import com.shopping.model.Transaction;
 import com.shopping.repository.TransactionRepository;
@@ -18,9 +17,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static org.mockito.Mockito.when;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 public class RewardServiceTest {
@@ -32,38 +32,85 @@ public class RewardServiceTest {
     TransactionRepository transactionRepoMock;
 
     /**
-     * Test for calculateRewardForUser method for single user
+     * Test for calculateRewardForUser method for single user. Transaction more than 100$
      */
     @Test
-    public void testCalculateRewards(){
+    public void testCalculateRewards() {
         List<Transaction> transactions = Arrays.asList(
-                Transaction.builder().orderId(1001L).itemId(1L).customerId(123L).amount(120).date(LocalDate.of(2025,05,25)).build(),
-                Transaction.builder().orderId(1002L).itemId(1L).customerId(123L).amount(120).date(LocalDate.of(2025,04,25)).build()
+                Transaction.builder().orderId(1001L).itemId(1L).customerId(123L).amount(120).date(LocalDate.of(2025, 05, 25)).build(),
+                Transaction.builder().orderId(1002L).itemId(1L).customerId(123L).amount(120).date(LocalDate.of(2025, 04, 25)).build()
         );
 
         when(transactionRepoMock.findLast3MonthsTransaction(anyLong()
-                                , any(LocalDate.class))).thenReturn(transactions);
+                , any(LocalDate.class))).thenReturn(transactions);
 
         RewardResponse result =
                 RewardResponse.builder().customerId(123L)
-                        .monthlyPoints(Map.of("APRIL 2025",90,"MAY 2025",90)).totalPoints(180).build();
+                        .monthlyPoints(Map.of("APRIL 2025", 90, "MAY 2025", 90)).totalPoints(180).build();
 
-        RewardResponse mockResult = assertDoesNotThrow(()-> rewardServiceMock.calculateRewardForUser(123L));
+        RewardResponse mockResult = assertDoesNotThrow(() -> rewardServiceMock.calculateRewardForUser(123L));
 
-        assertEquals(result.getMonthlyPoints().entrySet(),mockResult.getMonthlyPoints().entrySet());
+        assertEquals(result.getMonthlyPoints().entrySet(), mockResult.getMonthlyPoints().entrySet());
 
     }
+
+    /**
+     * Test for calculateRewardForUser method for single user. Transaction less than 100$
+     */
+    @Test
+    public void testCalculateRewardsForLessThan100() {
+        List<Transaction> transactions = Arrays.asList(
+                Transaction.builder().orderId(1001L).itemId(1L).customerId(123L).amount(90).date(LocalDate.of(2025, 05, 25)).build(),
+                Transaction.builder().orderId(1002L).itemId(1L).customerId(123L).amount(90).date(LocalDate.of(2025, 04, 25)).build()
+        );
+
+        when(transactionRepoMock.findLast3MonthsTransaction(anyLong()
+                , any(LocalDate.class))).thenReturn(transactions);
+
+        RewardResponse result =
+                RewardResponse.builder().customerId(123L)
+                        .monthlyPoints(Map.of("APRIL 2025", 40, "MAY 2025", 40)).totalPoints(80).build();
+
+        RewardResponse mockResult = assertDoesNotThrow(() -> rewardServiceMock.calculateRewardForUser(123L));
+
+        assertEquals(result.getMonthlyPoints().entrySet(), mockResult.getMonthlyPoints().entrySet());
+
+    }
+
+    /**
+     * Test for calculateRewardForUser method for single user. Transaction less than 50$
+     */
+    @Test
+    public void testCalculateRewardsForLessThan50() {
+        List<Transaction> transactions = Arrays.asList(
+                Transaction.builder().orderId(1001L).itemId(1L).customerId(123L).amount(40).date(LocalDate.of(2025, 05, 25)).build(),
+                Transaction.builder().orderId(1002L).itemId(1L).customerId(123L).amount(40).date(LocalDate.of(2025, 04, 25)).build()
+        );
+
+        when(transactionRepoMock.findLast3MonthsTransaction(anyLong()
+                , any(LocalDate.class))).thenReturn(transactions);
+
+        RewardResponse result =
+                RewardResponse.builder().customerId(123L)
+                        .monthlyPoints(Map.of("APRIL 2025", 0, "MAY 2025", 0)).totalPoints(0).build();
+
+        RewardResponse mockResult = assertDoesNotThrow(() -> rewardServiceMock.calculateRewardForUser(123L));
+
+        assertEquals(result.getMonthlyPoints().entrySet(), mockResult.getMonthlyPoints().entrySet());
+
+    }
+
 
     /**
      * Validating Exception Getting or not
      */
     @Test
-    void testCalculateRewardForUser_EmptyTransactions(){
+    void testCalculateRewardForUser_EmptyTransactions() {
         when(transactionRepoMock.findLast3MonthsTransaction(anyLong()
-                ,any(LocalDate.class))).thenReturn(Arrays.asList());
+                , any(LocalDate.class))).thenReturn(Arrays.asList());
 
         CustomerDataNotFoundException exception = assertThrows(CustomerDataNotFoundException.class,
-                            ()->rewardServiceMock.calculateRewardForUser(123L));
+                () -> rewardServiceMock.calculateRewardForUser(123L));
 
         Assertions.assertEquals(CustomerDataNotFoundException.class, exception.getClass());
     }
@@ -82,24 +129,24 @@ public class RewardServiceTest {
     @Test
     void testCalculateRewardForAllCustomers_Success() {
         List<Transaction> transactions = Arrays.asList(
-                Transaction.builder().orderId(1001L).itemId(1L).customerId(123L).amount(120).date(LocalDate.of(2025,05,25)).build(),
-                Transaction.builder().orderId(1002L).itemId(1L).customerId(123L).amount(120).date(LocalDate.of(2025,04,25)).build(),
-                Transaction.builder().orderId(1003L).itemId(1L).customerId(124L).amount(120).date(LocalDate.of(2025,05,25)).build(),
-                Transaction.builder().orderId(1004L).itemId(1L).customerId(124L).amount(120).date(LocalDate.of(2025,04,25)).build()
+                Transaction.builder().orderId(1001L).itemId(1L).customerId(123L).amount(120).date(LocalDate.of(2025, 05, 25)).build(),
+                Transaction.builder().orderId(1002L).itemId(1L).customerId(123L).amount(120).date(LocalDate.of(2025, 04, 25)).build(),
+                Transaction.builder().orderId(1003L).itemId(1L).customerId(124L).amount(120).date(LocalDate.of(2025, 05, 25)).build(),
+                Transaction.builder().orderId(1004L).itemId(1L).customerId(124L).amount(120).date(LocalDate.of(2025, 04, 25)).build()
         );
 
         when(transactionRepoMock.findLast3MonthsTransactionForAllUsers(any(LocalDate.class))).thenReturn(transactions);
 
         List<RewardResponse> result = Arrays.asList(
                 RewardResponse.builder().customerId(123L)
-                        .monthlyPoints(Map.of("APRIL 2025",90,"MAY 2025",90)).totalPoints(180).build(),
+                        .monthlyPoints(Map.of("APRIL 2025", 90, "MAY 2025", 90)).totalPoints(180).build(),
                 RewardResponse.builder().customerId(124L)
-                        .monthlyPoints(Map.of("APRIL 2025",90,"MAY 2025",90)).totalPoints(180).build()
-                );
+                        .monthlyPoints(Map.of("APRIL 2025", 90, "MAY 2025", 90)).totalPoints(180).build()
+        );
 
-        List<RewardResponse> mockResult = assertDoesNotThrow(()-> rewardServiceMock.calculateRewardForAllCustomers());
+        List<RewardResponse> mockResult = assertDoesNotThrow(() -> rewardServiceMock.calculateRewardForAllCustomers());
 
-        assertEquals(result.size(),mockResult.size());
+        assertEquals(result.size(), mockResult.size());
 
     }
 
@@ -115,8 +162,6 @@ public class RewardServiceTest {
         });
 
     }
-
-
 
 
 }

@@ -2,11 +2,9 @@ package com.shopping.service;
 
 import com.shopping.exception.CustomerDataNotFoundException;
 import com.shopping.exception.InvalidDataException;
-import com.shopping.exception.TransactionNotFoundException;
 import com.shopping.model.RewardResponse;
 import com.shopping.model.Transaction;
 import com.shopping.repository.TransactionRepository;
-import static com.shopping.utils.Constants.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +14,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.shopping.utils.Constants.CUSTOMER_DATA_NOT_FOUND;
+import static com.shopping.utils.Constants.CUSTOMER_ID_INVALID;
 
 
 /**
@@ -26,23 +26,26 @@ public class RewardServiceImpl implements RewardService {
 
     @Autowired
     TransactionRepository transactionRepository;
+
     /**
      * Calculates Reward Point based on Last 3 month transaction amount
+     *
      * @param customerId - fetching transaction based on customerId
      * @return
      */
     @Override
     public RewardResponse calculateRewardForUser(Long customerId) throws Exception {
-        if(customerId==null || customerId<=0){
+        if (customerId == null || customerId <= 0) {
             throw new InvalidDataException(CUSTOMER_ID_INVALID);
         }
         LocalDate localDate = LocalDate.now();
         LocalDate startDate = localDate.minusMonths(3);
 
         //Fetch Last 3 months transactions
-        List<Transaction> transactions = transactionRepository.findLast3MonthsTransaction(customerId,startDate);
+        List<Transaction> transactions = transactionRepository
+                .findLast3MonthsTransaction(customerId, startDate);
 
-        if(transactions.isEmpty()){
+        if (transactions.isEmpty()) {
             throw new CustomerDataNotFoundException(CUSTOMER_DATA_NOT_FOUND);
         }
 
@@ -50,7 +53,8 @@ public class RewardServiceImpl implements RewardService {
 
         //Calculating Monthly points and totalpoints
         for (Transaction transaction : transactions) {
-            String month = transaction.getDate().getMonth().toString() + " " + transaction.getDate().getYear();
+            String month = transaction.getDate().getMonth().toString() + " "
+                    + transaction.getDate().getYear();
             int points = calculatePoints(transaction.getAmount());
 
             int prevPoints = customerMonthlyPoints.getOrDefault(month, 0);
@@ -60,7 +64,7 @@ public class RewardServiceImpl implements RewardService {
         int total = customerMonthlyPoints.values().stream().mapToInt(Integer::intValue).sum();
 
         RewardResponse response = RewardResponse.builder().customerId(customerId)
-                                    .monthlyPoints(customerMonthlyPoints).totalPoints(total).build();
+                .monthlyPoints(customerMonthlyPoints).totalPoints(total).build();
 
 
         return response;
@@ -68,6 +72,7 @@ public class RewardServiceImpl implements RewardService {
 
     /**
      * Calculate Reward for all customers
+     *
      * @return List of RewardResponse
      */
     @Override
@@ -75,24 +80,24 @@ public class RewardServiceImpl implements RewardService {
         LocalDate localDate = LocalDate.now();
         LocalDate startDate = localDate.minusMonths(3);
         //Fetch All Customer transactions
-        List<Transaction> transactions = transactionRepository.findLast3MonthsTransactionForAllUsers(startDate);
-
+        List<Transaction> transactions = transactionRepository
+                .findLast3MonthsTransactionForAllUsers(startDate);
 
         if (transactions.isEmpty()) {
             throw new CustomerDataNotFoundException(CUSTOMER_DATA_NOT_FOUND);
         }
 
-
         Map<Long, Map<String, Integer>> customerMonthlyPoints = new HashMap<>();
 
         for (Transaction transaction : transactions) {
             Long customerId = transaction.getCustomerId();
-            String month = transaction.getDate().getMonth().toString() + " " + transaction.getDate().getYear();
+            String month = transaction.getDate().getMonth().toString() + " "
+                    + transaction.getDate().getYear();
+
             int points = calculatePoints(transaction.getAmount());
 
             //Checking if customerId is present, otherwise adding to customerMonthlyPoints
-            customerMonthlyPoints
-                    .computeIfAbsent(customerId, k -> new HashMap<>());
+            customerMonthlyPoints.computeIfAbsent(customerId, k -> new HashMap<>());
 
             Map<String, Integer> monthlyPoints = customerMonthlyPoints.get(customerId);
 
@@ -119,10 +124,9 @@ public class RewardServiceImpl implements RewardService {
     }
 
     /**
-     *
      * @param amount to calculate reward points
-     * 2 points for every dollar spent over $100
-     * 1 point for every dollar spent between $50 and $100
+     *               2 points for every dollar spent over $100
+     *               1 point for every dollar spent between $50 and $100
      */
     private int calculatePoints(double amount) {
         int points = 0;

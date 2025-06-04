@@ -35,7 +35,7 @@ class RewardControllerTest {
         Long customerId = 1L;
         RewardResponse mockResponse =
                 RewardResponse.builder().customerId(1L)
-                        .monthlyPoints(Map.of("APRIL 2025",90,"MAY 2025",90)).totalPoints(180).build();
+                        .monthlyPoints(Map.of("APRIL 2025", 90, "MAY 2025", 90)).totalPoints(180).build();
 
 
         when(rewardService.calculateRewardForUser(customerId)).thenReturn(mockResponse);
@@ -68,9 +68,9 @@ class RewardControllerTest {
         Long customerId = 1L;
         List<RewardResponse> mockResponse = Arrays.asList(
                 RewardResponse.builder().customerId(1L)
-                        .monthlyPoints(Map.of("APRIL 2025",90,"MAY 2025",90)).totalPoints(180).build(),
+                        .monthlyPoints(Map.of("APRIL 2025", 90, "MAY 2025", 90)).totalPoints(180).build(),
                 RewardResponse.builder().customerId(2L)
-                        .monthlyPoints(Map.of("APRIL 2025",90,"MAY 2025",90)).totalPoints(180).build()
+                        .monthlyPoints(Map.of("APRIL 2025", 90, "MAY 2025", 90)).totalPoints(180).build()
         );
 
         when(rewardService.calculateRewardForAllCustomers()).thenReturn(mockResponse);

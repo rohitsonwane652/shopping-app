@@ -1,8 +1,8 @@
 package com.shopping.exception;
 
-public class CustomerDataNotFoundException extends RuntimeException{
+public class CustomerDataNotFoundException extends RuntimeException {
 
-    public CustomerDataNotFoundException(String message){
+    public CustomerDataNotFoundException(String message) {
         super(message);
     }
 
